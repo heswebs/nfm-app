@@ -1,43 +1,78 @@
 import React, {Component} from 'react';
 import data from './data/projects.json';
 
-class Table extends Component{
+class Table extends Component {
 
-  
+    state = {
+        projects : []
+    };
 
-    handleSubmit = (e) => {
-        e.preventDefault()
-        console.log(this.name)
+
+    componentDidMount(){
+        let projects = data.projects.map((project) => {
+            project.checked = false;
+            return project
+        });
+        this.setState({
+            projects
+        })
+    }
+    handleChecked = (e) => {
+       let data = this.state.projects.map((project) => {
+        if(e.target.checked && e.target.value === project.name){
+               project.checked = true
+               
+           }
+           if(!e.target.checked && e.target.value === project.name){
+               project.checked = false
+           }
+           return project
+       })
+       this.setState({
+        projects: data
+    })
+    }
+
+    handleSubmit = () => {
+        this.state.projects.map((project) => {
+           return project.checked?console.log(project):null;
+        })
+    }
+
+    handleSort = () => {
+        let sortedProjects = Array.from(this.state.projects);
+        sortedProjects.sort((a,b) => {
+            a = new Date(a.postedDate)
+            b = new Date(b.postedDate)
+           return a-b
+        })
+        this.setState({
+                projects:sortedProjects
+            })
     }
    
     render(){
-        const tableHead = Object.keys(data.projects[0]).map((item, i) => {
+        const tableItem = this.state.projects.map(({name,type,castingDirector,postedDate}, i)=> {
             return (
-            <th key={item}>{item}</th>
-            )
-         }
-        )
-        const tableItem = data.projects.map(({name,type,castingDirector,postedDate}, i)=> {
-            return (
-            <>    
                 <tr key={name}>
-                <td className="projectName"><input name="items" value={name} type="checkbox"/>{name}</td>
+                <td className="projectName"><input onChange={this.handleChecked} name="items" value={name} type="checkbox"/>{name}</td>
                 <td>{type}</td>
                 <td>{castingDirector}</td>
                 <td>{postedDate}</td>
                 </tr>
-            </>
             )
         })
     
         return (
             <>
-            <form>
             <table>
                 <caption><h2>Projects</h2></caption>
                <thead> 
                 <tr>
-                    {tableHead}
+                    <th>name</th>
+                    <th>type</th>
+                    <th>casting Director</th>
+                    <th onClick={this.handleSort}>posted date</th>
                 </tr>
                </thead>
                <tbody> 
@@ -45,8 +80,7 @@ class Table extends Component{
                 </tbody>
             </table>
             <button type="button" onClick={this.handleSubmit}>submit</button>
-            </form>
-            </>   
+            </>
         )
     }
     
